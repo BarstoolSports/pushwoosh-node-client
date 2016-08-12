@@ -21,6 +21,75 @@ function PushwooshClient(appCode, authToken, options) {
 
 }
 
+PushwooshClient.prototype.setTags = function (device, tags, callback) {
+
+    var client = this;
+
+    if (!tags || typeof tags !== 'object') {
+        return callback(new Error('Tags have to be provided'));
+    }
+
+    if (typeof device !== 'string') {
+        return callback(new Error('Device needs to be a string'));
+    }
+
+    // TODO: Validate Stuff...
+    // var i;
+    // for(i in tags) {
+    //     console.log(i + ': ' + tags[i]);
+    // }
+
+    var body = {
+        request: {
+            hwid: device,
+            tags: tags
+        }
+    };
+
+    if (client.useApplicationsGroup) {
+        body.request.applications_group = client.appCode;
+    } else {
+        body.request.application = client.appCode;
+    }
+
+    client.sendRequest('setTags', body, function (error, response, body) {
+        if (error) {
+            return callback(error);
+        }
+        client.parseResponse(response, body, callback);
+    });
+
+};
+
+PushwooshClient.prototype.getTags = function (device, callback) {
+
+  var client = this;
+
+  if (typeof device !== 'string') {
+      return callback(new Error('Device needs to be a string'));
+  }
+
+  var body = {
+      request: {
+          hwid: device
+      }
+  };
+
+  if (client.useApplicationsGroup) {
+      body.request.applications_group = client.appCode;
+  } else {
+      body.request.application = client.appCode;
+  }
+
+  client.sendRequest('getTags', body, function (error, response, body) {
+      if (error) {
+          return callback(error);
+      }
+      client.parseResponse(response, body, callback);
+  });
+
+};
+
 PushwooshClient.prototype.sendMessage = function (msg, device, options, callback) {
 
     var client = this;
